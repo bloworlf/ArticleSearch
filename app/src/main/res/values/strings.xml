@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Article Search</string>
+
+    <string-array name="filter_sort_order">
+        <item>Newest</item>
+        <item>Oldest</item>
+    </string-array>
 </resources>
