@@ -5,28 +5,33 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
 import com.example.mathurinbloworlf.articlesearch.R;
+import com.example.mathurinbloworlf.articlesearch.adapter.ArticleAdapter;
 import com.example.mathurinbloworlf.articlesearch.adapter.ArticleArrayAdapter;
 import com.example.mathurinbloworlf.articlesearch.fragment.Filter;
 import com.example.mathurinbloworlf.articlesearch.model.Article;
+import com.example.mathurinbloworlf.articlesearch.other.ItemClickSupport;
+import com.example.mathurinbloworlf.articlesearch.other.SpacesItemDecoration;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -39,6 +44,7 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 public class ArticleFeed extends AppCompatActivity {
 
@@ -51,6 +57,9 @@ public class ArticleFeed extends AppCompatActivity {
 
     ArrayList<Article> articles;
     ArticleArrayAdapter articleArrayAdapter;
+    ArticleAdapter articleAdapter;
+    RecyclerView recyclerView;
+    StaggeredGridLayoutManager staggeredGridLayoutManager;
     RequestParams requestParams = new RequestParams();
     private boolean emptySearchTriggered = false;
 
@@ -71,7 +80,7 @@ public class ArticleFeed extends AppCompatActivity {
             setSupportActionBar(toolbar);
 
             articles = new ArrayList<>();
-            articleArrayAdapter = new ArticleArrayAdapter(this, articles);
+            //articleArrayAdapter = new ArticleArrayAdapter(this, articles);
 
             swipeRefreshLayout = findViewById(R.id.feed_refresh);
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -88,9 +97,61 @@ public class ArticleFeed extends AppCompatActivity {
                 }
             });
 
+            recyclerView = findViewById(R.id.recyclerView_feed);
+            articleAdapter = new ArticleAdapter(articles);
+            recyclerView.setAdapter(articleAdapter);
+            staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+
+            SpacesItemDecoration decoration = new SpacesItemDecoration(10);
+            recyclerView.addItemDecoration(decoration);
+            recyclerView.setItemAnimator(new SlideInUpAnimator());
+
+            recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (!recyclerView.canScrollVertically(1)) {
+                        page++;
+                        if(TextUtils.isEmpty(searchText) && emptySearchTriggered){
+                            loadFeed(page);
+                        }
+                        else {
+                            searchArticle(searchText, page);
+                        }
+                    }
+                }
+            });
+
+            //recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            //    @Override
+            //    public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+            //        return false;
+            //    }
+            //    @Override
+            //    public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
+            //    }
+            //    @Override
+            //    public void onRequestDisallowInterceptTouchEvent(boolean b) {
+            //    }
+            //});
+
+            ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+                @Override
+                public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                    Intent intent = new Intent(getApplicationContext(), ArticleView.class);
+                    Article article = articles.get(position);
+                    intent.putExtra("article", Parcels.wrap(article));
+                    startActivity(intent);
+                }
+            });
+
+
+
+            /*
             gridViewFeed = findViewById(R.id.gridView_feed);
             gridViewFeed.setNumColumns(2);
-            gridViewFeed.setAdapter(articleArrayAdapter);
+            //gridViewFeed.setAdapter(articleArrayAdapter);
             gridViewFeed.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView absListView, int i) {
@@ -121,6 +182,7 @@ public class ArticleFeed extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
+            */
 
             //loadFeed(page);
         }
@@ -232,7 +294,13 @@ public class ArticleFeed extends AppCompatActivity {
                 try {
                     jsonArray = response.getJSONObject("response").getJSONArray("docs");
                     articles.addAll(Article.fromJSONArray(jsonArray));
-                    articleArrayAdapter.notifyDataSetChanged();
+                    //articleArrayAdapter.notifyDataSetChanged();
+                    if(articleAdapter.getItemCount() == 0){
+                        articleAdapter.notifyItemInserted(0);
+                    }
+                    else {
+                        articleAdapter.notifyItemInserted(articleAdapter.getItemCount()-1);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -285,7 +353,14 @@ public class ArticleFeed extends AppCompatActivity {
                 try {
                     jsonArray = response.getJSONObject("response").getJSONArray("docs");
                     articles.addAll(Article.fromJSONArray(jsonArray));
-                    articleArrayAdapter.notifyDataSetChanged();
+                    //articleArrayAdapter.notifyDataSetChanged();
+                    //articleAdapter.notifyDataSetChanged();
+                    if(articleAdapter.getItemCount() == 0){
+                        articleAdapter.notifyItemInserted(0);
+                    }
+                    else {
+                        articleAdapter.notifyItemInserted(articleAdapter.getItemCount()-1);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -307,5 +382,14 @@ public class ArticleFeed extends AppCompatActivity {
 
         return cm.getActiveNetworkInfo() != null &&
                 cm.getActiveNetworkInfo().isConnectedOrConnecting();
+    }
+
+    @Override
+    protected void onResume() {
+        if(!TextUtils.isEmpty(searchText)){
+            searchArticle(searchText, page);
+        }
+
+        super.onResume();
     }
 }

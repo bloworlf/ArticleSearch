@@ -1,38 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:background="@drawable/article_model_bg">
+    android:background="?android:attr/selectableItemBackground">
 
-    <ImageView
-        android:layout_gravity="center"
-        android:id="@+id/article_thumbnail"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        app:srcCompat="@android:drawable/ic_menu_report_image"
-        android:scaleType="center"/>
-
-    <TextView
-        android:textColor="#000000"
-        android:id="@+id/article_headline"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="Headline"
-        android:textSize="18sp"
-        android:ellipsize="end"/>
+        android:padding="8dp"
+        android:background="@drawable/article_model_bg">
 
-    <TextView
-        android:id="@+id/article_snippet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="Snippet"
-        android:maxLines="5"
-        android:ellipsize="end"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:id="@+id/article_thumbnail"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            app:srcCompat="@android:drawable/ic_menu_report_image"
+            android:scaleType="center"/>
 
-</LinearLayout>
+        <TextView
+            android:textColor="#000000"
+            android:id="@+id/article_headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Headline"
+            android:textSize="18sp"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/article_snippet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Snippet"
+            android:maxLines="5"
+            android:ellipsize="end"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

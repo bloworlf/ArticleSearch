@@ -141,16 +141,16 @@ public class Article {
     }
 
     public static ArrayList<Article> fromJSONArray(JSONArray jsonArray){
-        ArrayList<Article> results = new ArrayList<>();
+        ArrayList<Article> articles = new ArrayList<>();
 
         for (int i=0;i<jsonArray.length();i++){
             try {
-                results.add(new Article(jsonArray.getJSONObject(i)));
+                articles.add(new Article(jsonArray.getJSONObject(i)));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        return results;
+        return articles;
     }
 }
