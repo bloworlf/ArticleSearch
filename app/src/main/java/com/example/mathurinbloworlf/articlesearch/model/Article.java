@@ -3,11 +3,12 @@ package com.example.mathurinbloworlf.articlesearch.model;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Article implements Serializable{
+@Parcel
+public class Article {
     /*
     {
     "web_url": "https://www.nytimes.com/interactive/2016/01/13/us/document-Harvard-Slate-Bios.html",
@@ -93,9 +94,10 @@ public class Article implements Serializable{
     }
     */
 
-    private String web_url;
-    private String headline;
-    private String thumbnail;
+    String web_url;
+    String headline;
+    String thumbnail;
+    String snippet;
 
     public String getWeb_url() {
         return web_url;
@@ -109,25 +111,44 @@ public class Article implements Serializable{
         return thumbnail;
     }
 
-    private Article(JSONObject jsonObject) throws JSONException {
-        this.web_url = jsonObject.getString("web_url");
-        this.headline = jsonObject.getJSONObject("headline").getString("main");
-
-        JSONArray multimedia = jsonObject.getJSONArray("multimedia");
-        if (multimedia.length() > 0){
-            JSONObject multimediaObject = multimedia.getJSONObject(0);
-            this.thumbnail = "https://www.nytimes.com/" + multimediaObject.getString("url");
-        }
-        else {
-            this.thumbnail = "";
-        }
+    public String getSnippet() {
+        return snippet;
     }
 
-    public static ArrayList<Article> fromJSONArray(JSONArray jsonArray) throws JSONException {
+    public Article(){
+
+    }
+
+    public Article(JSONObject jsonObject){
+        try{
+            this.web_url = jsonObject.getString("web_url");
+            this.headline = jsonObject.getJSONObject("headline").getString("main");
+            this.snippet = jsonObject.getString("snippet");
+
+            JSONArray multimedia = jsonObject.getJSONArray("multimedia");
+            if (multimedia.length() > 0){
+                JSONObject multimediaObject = multimedia.getJSONObject(0);
+                this.thumbnail = "https://www.nytimes.com/" + multimediaObject.getString("url");
+            }
+            else {
+                this.thumbnail = "";
+            }
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public static ArrayList<Article> fromJSONArray(JSONArray jsonArray){
         ArrayList<Article> results = new ArrayList<>();
 
         for (int i=0;i<jsonArray.length();i++){
-            results.add(new Article(jsonArray.getJSONObject(i)));
+            try {
+                results.add(new Article(jsonArray.getJSONObject(i)));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         return results;

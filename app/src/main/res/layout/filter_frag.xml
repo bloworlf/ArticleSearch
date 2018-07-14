@@ -64,18 +64,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="News Desk Values"/>
-        <CheckBox
+        <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Arts"/>
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fashion &amp; Style"/>
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sports"/>
+            android:orientation="vertical">
+            <CheckBox
+                android:id="@+id/check_arts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Arts"/>
+            <CheckBox
+                android:id="@+id/check_fashion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fashion &amp; Style"/>
+            <CheckBox
+                android:id="@+id/check_sports"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sports"/>
+        </RadioGroup>
+
     </LinearLayout>
 
     <Button

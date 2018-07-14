@@ -1,6 +1,10 @@
 package com.example.mathurinbloworlf.articlesearch.activity;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +32,7 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -44,6 +49,11 @@ public class ArticleFeed extends AppCompatActivity {
 
     ArrayList<Article> articles;
     ArticleArrayAdapter articleArrayAdapter;
+    RequestParams requestParams = new RequestParams();
+
+    public RequestParams getRequestParams() {
+        return this.requestParams;
+    }
 
     int page = 0;
     String searchText = "";
@@ -51,59 +61,75 @@ public class ArticleFeed extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_article_feed);
+        if(isOnline()){
+            setContentView(R.layout.activity_article_feed);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_article_feed);
-        setSupportActionBar(toolbar);
+            Toolbar toolbar = findViewById(R.id.toolbar_article_feed);
+            setSupportActionBar(toolbar);
 
-        articles = new ArrayList<>();
-        articleArrayAdapter = new ArticleArrayAdapter(this, articles);
+            articles = new ArrayList<>();
+            articleArrayAdapter = new ArticleArrayAdapter(this, articles);
 
-        gridViewFeed = findViewById(R.id.gridView_feed);
-        gridViewFeed.setNumColumns(2);
-        gridViewFeed.setAdapter(articleArrayAdapter);
-        gridViewFeed.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if(firstVisibleItem + visibleItemCount >= totalItemCount){
-                    if(!TextUtils.isEmpty(searchText)){
-                        page++;
-                        searchArticle(searchText, page);
-                    }
+            gridViewFeed = findViewById(R.id.gridView_feed);
+            gridViewFeed.setNumColumns(2);
+            gridViewFeed.setAdapter(articleArrayAdapter);
+            gridViewFeed.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {
 
                 }
-            }
-        });
 
-        editTextSearch = findViewById(R.id.editText_search);
+                @Override
+                public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if(firstVisibleItem + visibleItemCount >= totalItemCount){
+                        if(!TextUtils.isEmpty(searchText)){
+                            page++;
+                            searchArticle(searchText, page);
+                        }
 
-        buttonSearch = findViewById(R.id.search_button);
-        buttonSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                searchText = editTextSearch.getText().toString().trim();
-                articles.clear();
-                page = 0;
-                searchArticle(searchText, page);
-            }
-        });
+                    }
+                }
+            });
 
-        gridViewFeed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getApplicationContext(), ArticleView.class);
-                Article article = articles.get(i);
-                intent.putExtra("article", article);
-                startActivity(intent);
-            }
-        });
+            editTextSearch = findViewById(R.id.editText_search);
 
-        //loadFeed(page);
+            buttonSearch = findViewById(R.id.search_button);
+            buttonSearch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    searchText = editTextSearch.getText().toString().trim();
+                    articles.clear();
+                    page = 0;
+                    searchArticle(searchText, page);
+                }
+            });
+
+            gridViewFeed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent(getApplicationContext(), ArticleView.class);
+                    Article article = articles.get(i);
+                    intent.putExtra("article", Parcels.wrap(article));
+                    startActivity(intent);
+                }
+            });
+
+            //loadFeed(page);
+        }
+        else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle("Connection Error");
+            builder.setMessage("You should check your connection and try again");
+            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    finish();
+                }
+            });
+            builder.show();
+        }
+
     }
 
     @Override
@@ -140,9 +166,15 @@ public class ArticleFeed extends AppCompatActivity {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
-        RequestParams requestParams = new RequestParams();
-        requestParams.put("api-key", "303d1dbb703549768a457037e703b577");
-        requestParams.put("page", page);
+        if(requestParams.toString().isEmpty()){
+            requestParams = new RequestParams();
+            requestParams.put("api-key", "303d1dbb703549768a457037e703b577");
+            requestParams.put("page", page);
+        }
+        else {
+            requestParams.put("api-key", "303d1dbb703549768a457037e703b577");
+            requestParams.put("page", page);
+        }
 
         client.get(url, requestParams, new JsonHttpResponseHandler(){
             @Override
@@ -173,10 +205,18 @@ public class ArticleFeed extends AppCompatActivity {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
-        RequestParams requestParams = new RequestParams();
-        requestParams.put("api-key", "303d1dbb703549768a457037e703b577");
-        requestParams.put("page", page);
-        requestParams.put("q", string);
+        if (requestParams.toString().isEmpty()){
+            requestParams = new RequestParams();
+            requestParams.put("api-key", "303d1dbb703549768a457037e703b577");
+            requestParams.put("page", page);
+            requestParams.put("q", string);
+        }
+        else {
+            requestParams.put("api-key", "303d1dbb703549768a457037e703b577");
+            requestParams.put("page", page);
+            requestParams.put("q", string);
+        }
+        Log.d("REQUESTPARAMS", requestParams.toString());
 
         client.get(url, requestParams, new JsonHttpResponseHandler(){
             @Override
@@ -201,5 +241,13 @@ public class ArticleFeed extends AppCompatActivity {
                 //Toast.makeText(ArticleFeed.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null &&
+                cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 }

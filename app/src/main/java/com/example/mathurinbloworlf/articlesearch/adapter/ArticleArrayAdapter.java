@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.mathurinbloworlf.articlesearch.R;
 import com.example.mathurinbloworlf.articlesearch.model.Article;
 import com.squareup.picasso.Picasso;
@@ -36,18 +37,26 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article>{
             convertView = inflater.inflate(R.layout.article_model, parent, false);
         }
         //find views
-        ImageView imageView = convertView.findViewById(R.id.article_thumbnail);
-        TextView textView = convertView.findViewById(R.id.article_headline);
+        ImageView article_thumbnail = convertView.findViewById(R.id.article_thumbnail);
+        TextView article_headline = convertView.findViewById(R.id.article_headline);
+        TextView article_snippet = convertView.findViewById(R.id.article_snippet);
         //clear recycled image from convert view from last time
-        imageView.setImageResource(0);
+        article_thumbnail.setImageResource(0);
 
-        textView.setText(article.getHeadline());
+        article_headline.setText(article.getHeadline());
+        article_snippet.setText(article.getSnippet());
 
         String thumbnail = article.getThumbnail();
+        //if(!TextUtils.isEmpty(thumbnail)){
+        //    Picasso.get()
+        //            .load(Uri.parse(thumbnail))
+        //            .into(article_thumbnail);
+        //}
         if(!TextUtils.isEmpty(thumbnail)){
-            Picasso.get()
+            Glide.with(getContext())
                     .load(Uri.parse(thumbnail))
-                    .into(imageView);
+                    .thumbnail(Glide.with(getContext()).load(R.drawable.gif_loading))
+                    .into(article_thumbnail);
         }
         return convertView;
     }
