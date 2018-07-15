@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.mathurinbloworlf.articlesearch.R;
 import com.example.mathurinbloworlf.articlesearch.model.Article;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 

@@ -82,12 +82,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
         ImageView thumbnail = viewHolder.article_thumbnail;
         String thumb = article.getThumbnail();
         if(!TextUtils.isEmpty(thumb)){
+            viewHolder.article_thumbnail.setVisibility(View.VISIBLE);
             Glide.with(context)
                     .load(Uri.parse(thumb))
                     .thumbnail(Glide.with(context).load(R.drawable.gif_loading))
+                    .error(Glide.with(context).load(R.drawable.ic_broken_image))
                     .into(thumbnail);
         }
         else{
+            viewHolder.article_thumbnail.setVisibility(View.GONE);
             Glide.with(context)
                     .load(R.drawable.ic_broken_image)
                     .into(thumbnail);

@@ -5,7 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -139,10 +142,18 @@ public class ArticleFeed extends AppCompatActivity {
             ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                 @Override
                 public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                    Intent intent = new Intent(getApplicationContext(), ArticleView.class);
+                    //Intent intent = new Intent(getApplicationContext(), ArticleView.class);
                     Article article = articles.get(position);
-                    intent.putExtra("article", Parcels.wrap(article));
-                    startActivity(intent);
+                    //intent.putExtra("article", Parcels.wrap(article));
+                    //startActivity(intent);
+
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    builder.setToolbarColor(ContextCompat.getColor(ArticleFeed.this, R.color.colorAccent));
+                    builder.addDefaultShareMenuItem();
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.launchUrl(ArticleFeed.this, Uri.parse(article.getWeb_url()));
+
+
                 }
             });
 
@@ -352,13 +363,15 @@ public class ArticleFeed extends AppCompatActivity {
 
                 try {
                     jsonArray = response.getJSONObject("response").getJSONArray("docs");
-                    articles.addAll(Article.fromJSONArray(jsonArray));
+                    //articles.addAll(Article.fromJSONArray(jsonArray));
                     //articleArrayAdapter.notifyDataSetChanged();
                     //articleAdapter.notifyDataSetChanged();
                     if(articleAdapter.getItemCount() == 0){
+                        articles.addAll(Article.fromJSONArray(jsonArray));
                         articleAdapter.notifyItemInserted(0);
                     }
                     else {
+                        articles.addAll(Article.fromJSONArray(jsonArray));
                         articleAdapter.notifyItemInserted(articleAdapter.getItemCount()-1);
                     }
                 } catch (JSONException e) {
@@ -391,5 +404,26 @@ public class ArticleFeed extends AppCompatActivity {
         }
 
         super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Exit app");
+        builder.setMessage("Dou you want to leave the app?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //
+            }
+        });
     }
 }
