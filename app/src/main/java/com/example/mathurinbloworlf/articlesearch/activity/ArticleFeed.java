@@ -342,13 +342,13 @@ public class ArticleFeed extends AppCompatActivity {
             requestParams.put("page", page);
             requestParams.put("q", string);
         }
-        if (!requestParams.toString().contains("order")){
+        if (!requestParams.toString().contains("sort")){
             SharedPreferences sharedPreferences = getSharedPreferences("FilterPref", Context.MODE_PRIVATE);
-            if (sharedPreferences.getInt("order", 0) == 0){
-                requestParams.put("order", "newest");
+            if (sharedPreferences.getInt("sort", 0) == 0){
+                requestParams.put("sort", "newest");
             }
             else {
-                requestParams.put("order", "oldest");
+                requestParams.put("sort", "oldest");
             }
         }
         Log.d("REQUESTPARAMS", requestParams.toString());

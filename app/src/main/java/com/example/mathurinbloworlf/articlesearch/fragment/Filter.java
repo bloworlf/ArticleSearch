@@ -112,7 +112,7 @@ public class Filter extends DialogFragment{
                 .createFromResource(getContext(), R.array.filter_sort_order,
                         android.R.layout.simple_spinner_item);
         order_filter.setAdapter(arrayAdapter);
-        order_filter.setSelection(sharedPreferences.getInt("order", 0));
+        order_filter.setSelection(sharedPreferences.getInt("sort", 0));
 
         //Setting up the save button
         save_filter = view.findViewById(R.id.save_filter);
@@ -164,7 +164,7 @@ public class Filter extends DialogFragment{
                 editor.putBoolean("fashion", fashion.isChecked());
                 editor.putBoolean("arts", arts.isChecked());
                 editor.putString("date", date_pickup.getText().toString());
-                editor.putInt("order", order_filter.getSelectedItemPosition());
+                editor.putInt("sort", order_filter.getSelectedItemPosition());
                 editor.apply();
 
 
